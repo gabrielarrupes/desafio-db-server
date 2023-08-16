@@ -1,11 +1,11 @@
 class CaixaDaLanchonete {
+
   calcularValorDaCompra(metodoDePagamento, itens) {
     const cardapio = [
       {
         tipo: "cafe",
         preco: 3.0,
       },
-
       {
         tipo: "chantily",
         preco: 1.5,
@@ -83,12 +83,12 @@ class CaixaDaLanchonete {
     }
     const verificaSeConstaChantily = itensDoCarrinho.some((item) => {
       return item.tipo === "chantily";
-    }); // algum dos ites tem chantilly
+    });
 
     if (verificaSeConstaChantily) {
       const verificaSeConstaCafe = itensDoCarrinho.some((item) => {
         return item.tipo === "cafe";
-      }); // se tem chantilly verifica se algum dos itens tem cafe
+      }); 
       if (!verificaSeConstaCafe) {
         return "Item extra não pode ser pedido sem o principal";
       }
