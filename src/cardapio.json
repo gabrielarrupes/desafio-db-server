@@ -1,0 +1,34 @@
+[
+    {
+      "tipo": "cafe",
+      "preco": 3.0
+    },
+    {
+      "tipo": "chantily",
+      "preco": 1.5
+    },
+    {
+      "tipo": "suco",
+      "preco": 6.3
+    },
+    {
+      "tipo": "sanduiche",
+      "preco": 6.5
+    },
+    {
+      "tipo": "queijo",
+      "preco": 2.0
+    },
+    {
+      "tipo": "salgado",
+      "preco": 7.25
+    },
+    {
+      "tipo": "combo1",
+      "preco": 9.5
+    },
+    {
+      "tipo": "combo2",
+      "preco": 7.5
+    }
+  ]

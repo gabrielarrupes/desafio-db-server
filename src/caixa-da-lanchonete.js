@@ -1,113 +1,121 @@
+import fs from "fs";
+
+const cardapio = JSON.parse(fs.readFileSync("./src/cardapio.json", `utf8`));
+
 class CaixaDaLanchonete {
+  verificaCarrinhoVazio(itens) {
+    if (itens.length < 1) {
+      return "Não há itens no carrinho de compra!";
+    }
+  }
 
-  calcularValorDaCompra(metodoDePagamento, itens) {
-    const cardapio = [
-      {
-        tipo: "cafe",
-        preco: 3.0,
-      },
-      {
-        tipo: "chantily",
-        preco: 1.5,
-      },
-      {
-        tipo: "suco",
-        preco: 6.3,
-      },
-      {
-        tipo: "sanduiche",
-        preco: 6.5,
-      },
-      {
-        tipo: "queijo",
-        preco: 2.0,
-      },
-      {
-        tipo: "salgado",
-        preco: 7.25,
-      },
-      {
-        tipo: "combo1",
-        preco: 9.5,
-      },
-      {
-        tipo: "combo2",
-        preco: 7.5,
-      },
-    ];
-
-    const metodosDisponiveis = ["debito", "credito", "dinheiro"];
-    let itensDoCarrinho = [];
-    let calculoPreco = 0;
-    let valorFinal = 0;
-
-    const verificaQuantidadeValida = itens.some((item) => {
-      return item.split(", ")[1] === "0" || item.split(", ")[1] === "";
+  verificaQuantidadeValida(itens) {
+    const verificaItem = itens.some((item) => {
+      return item.split(",")[1] === "0" || item.split(",")[1] === "";
     });
 
-    const itensOrganizados = itens.map((item) => {
-      return item.split(", ");
-    });
+    if (verificaItem) {
+      return "Quantidade inválida!";
+    }
+  }
 
-    const verificaCarrinhoVazio = itensOrganizados.some((item) => {
-      return item.length < 1;
-    });
-
-    const verificaPedidoValido = itensOrganizados.some((item) => {
+  verificaPedidoValido(itensOrganizados) {
+    const verificaItem = itensOrganizados.some((item) => {
       return item.length < 2;
     });
 
-    const metodoDePgtoValido = metodosDisponiveis.includes(metodoDePagamento);
-
-    if (verificaQuantidadeValida) {
-      return "Quantidade Inválida!";
-    }
-    if (verificaCarrinhoVazio) {
-      return "Não há itens no carrinho de compra!";
-    }
-    if (verificaPedidoValido) {
+    if (verificaItem) {
       return "Item inválido!";
     }
-    if (!metodoDePgtoValido) {
+  }
+
+  verificaMetodoDePgtoValido(metodosDisponiveis, metodoDePagamento) {
+    if (!metodosDisponiveis.includes(metodoDePagamento)) {
       return "Forma de pagamento inválida!";
     }
+  }
 
-    for (const item of itensOrganizados) {
-      const novoItem = item[0];
-      const quantidade = Number(item[1]);
-      const produtoEncontrado = cardapio.find((x) => x.tipo === novoItem);
-      if (produtoEncontrado) {
-        let itemReformulado = { ...produtoEncontrado, quantidade };
-        itensDoCarrinho.push(itemReformulado);
-      }
-    }
-    const verificaSeConstaChantily = itensDoCarrinho.some((item) => {
+  verificaSeConstaChantilySemCafe(carrinhoPronto) {
+    const verificaSeConstaChantily = carrinhoPronto.some((item) => {
       return item.tipo === "chantily";
     });
 
     if (verificaSeConstaChantily) {
-      const verificaSeConstaCafe = itensDoCarrinho.some((item) => {
+      const verificaSeConstaCafe = carrinhoPronto.some((item) => {
         return item.tipo === "cafe";
-      }); 
+      });
+
       if (!verificaSeConstaCafe) {
         return "Item extra não pode ser pedido sem o principal";
       }
     }
+  }
 
-    const verificaSeConstaQueijo = itensDoCarrinho.some((item) => {
+  verificaSeConstaQueijoSemSanduiche(carrinhoPronto) {
+    const verificaSeConstaQueijo = carrinhoPronto.some((item) => {
       return item.tipo === "queijo";
     });
 
     if (verificaSeConstaQueijo) {
-      const verificaSeConstaSanduiche = itensDoCarrinho.some((item) => {
+      const verificaSeConstaSanduiche = carrinhoPronto.some((item) => {
         return item.tipo === "sanduiche";
       });
       if (!verificaSeConstaSanduiche) {
         return "Item extra não pode ser pedido sem o principal";
       }
     }
+  }
 
-    itensDoCarrinho.forEach((item) => {
+  calcularValorDaCompra(metodoDePagamento, itens) {
+    const metodosDisponiveis = ["debito", "credito", "dinheiro"];
+    const carrinhoPronto = [];
+
+    let calculoPreco = 0;
+    let valorFinal = 0;
+
+    if (this.verificaCarrinhoVazio(itens)) {
+      return this.verificaCarrinhoVazio(itens);
+    }
+    if (this.verificaQuantidadeValida(itens)) {
+      return this.verificaQuantidadeValida(itens);
+    }
+
+    const itensOrganizados = itens.map((item) => {
+      return item.split(",");
+    });
+
+    if (this.verificaPedidoValido(itensOrganizados)) {
+      return this.verificaPedidoValido(itensOrganizados);
+    }
+    if (
+      this.verificaMetodoDePgtoValido(metodosDisponiveis, metodoDePagamento)
+    ) {
+      return this.verificaMetodoDePgtoValido(
+        metodosDisponiveis,
+        metodoDePagamento
+      );
+    }
+
+    for (const item of itensOrganizados) {
+      const novoItem = item[0];
+      const quantidade = Number(item[1]);
+      const produtoEncontrado = cardapio.find((item) => item.tipo === novoItem);
+      if (produtoEncontrado) {
+        let itemReformulado = { ...produtoEncontrado, quantidade };
+        carrinhoPronto.push(itemReformulado);
+      } else {
+        return "Item inválido!";
+      }
+    }
+
+    if (this.verificaSeConstaChantilySemCafe(carrinhoPronto)) {
+      return this.verificaSeConstaChantilySemCafe(carrinhoPronto);
+    }
+    if (this.verificaSeConstaQueijoSemSanduiche(carrinhoPronto)) {
+      return this.verificaSeConstaQueijoSemSanduiche(carrinhoPronto);
+    }
+
+    carrinhoPronto.forEach((item) => {
       const soma = item.preco * item.quantidade;
       calculoPreco += soma;
     });
@@ -118,8 +126,11 @@ class CaixaDaLanchonete {
     if (metodoDePagamento === "credito") {
       valorFinal = calculoPreco * 1.03;
     }
+    if (metodoDePagamento === "debito") {
+      valorFinal = calculoPreco;
+    }
 
-    return `R$ ${valorFinal.toFixed(2)}`;
+    return `R$ ${valorFinal.toFixed(2)}`.replace(".", ",");
   }
 }
 
